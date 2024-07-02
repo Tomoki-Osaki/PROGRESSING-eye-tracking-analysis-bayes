@@ -56,6 +56,7 @@ with pm.Model() as model:
     likelihood = pm.Normal('likelihood', mu=mu, sigma=sigma, observed=ratios_per_epoch[0])
     
     trace = pm.sample(2000, tune=1000)
+    #trace.extend(pm.sample_prior_predictive(8000))
 
 result = az.summary(trace).loc['mu']
 df_result = pd.DataFrame()
@@ -122,4 +123,8 @@ ax.fill_between(df_result.index, df_result['hdi_3%'], df_result['hdi_97%'], colo
 ax.set_xticks([i for i in range(5)])
 plt.show()
 
+with model:
+    pm.compute_log_likelihood(trace)
+loo = az.loo(trace)
+loo
 
