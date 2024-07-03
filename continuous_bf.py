@@ -74,6 +74,3 @@ ax.plot(df_result.index, df_result['mean'])
 ax.fill_between(df_result.index, df_result['hdi_3%'], df_result['hdi_97%'], color='b', alpha=.1)
 ax.set_xticks([i for i in range(7)])
 plt.show()
-
-
-
