@@ -20,8 +20,6 @@ import my_funcs as mf
 ```
 
 ```{python}
-az.style.use('arviz-darkgrid')
-
 num_subjects = 30
 
 dataframes = {}
@@ -58,31 +56,11 @@ colnames = [f'epoch{i+1}' for i in range(len(dataframes_hit[i].columns))]
 ratios_per_epoch = pd.DataFrame.from_dict(ratios_per_epoch, orient='index', columns=colnames)
 ratios_per_epoch.head()
 ```
-```{python}
-### inference
-trace = mf.calculate_posterior(ratios_per_epoch['epoch1']) 
-### 
-
-result = az.summary(trace).loc['mu']
-df_result = pd.DataFrame()
-df_result = df_result._append(result, ignore_index=True)
+```{r}
+a <- py$ratios_per_epoch['epoch1']
+b <- py$ratios_per_epoch['epoch2']
+res <- ttestBF(a$epoch1, b$epoch2)
+res
 ```
 
-```{python}
-az.plot_trace(trace)
-plt.show()
-    
-mean_of_4chains_mu = mf.average_chains_values('mu', trace) # len(mean_of_4chains_mu)==2000
-mean_of_4chains_sigma = mf.average_chains_values('sigma', trace) # len(mean_of_4chains_mu)==2000
-```
-```{python}
-### inference
-df_result, traces = mf.sequential_bayes_update(
-    df_to_append=df_result, 
-    prior_trace=mean_of_4chains_mu,
-    observed=ratios_per_epoch,
-    epochs=range(2, 8)
-) 
-###
-```
 
