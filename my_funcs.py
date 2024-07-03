@@ -116,6 +116,8 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
         df_result = df_result._append(result, ignore_index=True)
         traces[f'epoch{i}'] = trace
         
+        prior_trace = average_chains_values(param='mu', trace=trace)
+        
         print(f'\nepoch{i} done\n')
         gc.collect()
     
