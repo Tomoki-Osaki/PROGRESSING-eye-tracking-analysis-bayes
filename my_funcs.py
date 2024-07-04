@@ -8,13 +8,18 @@ from pymc.distributions import Interpolated
 import xarray
 import gc
 
-def create_df() -> pd.DataFrame:
-    # Parameters
-    sampling_rate = 30  # 30Hz
-    duration = 300  # 5 minutes in seconds
+def create_df(sampling_rate: int,
+              duration: int,
+              event_interval: int,
+              event_duration: int) -> pd.DataFrame:
+    """ 
+    Parameters
+    sampling_rate: Hz
+    duration: recording minutes in seconds
+    event_interval: interval of event happening
+    event_duration: Event duration in seconds
+    """
     total_samples = duration * sampling_rate
-    event_interval = 30  # Event every 30 seconds
-    event_duration = 2  # Event duration in seconds (assuming strong attraction lasts 2 seconds)
     aoi = {'x_min': 300, 'x_max': 600, 'y_min': 200, 'y_max': 400}  # Example AOI coordinates
     
     # Initialize data
