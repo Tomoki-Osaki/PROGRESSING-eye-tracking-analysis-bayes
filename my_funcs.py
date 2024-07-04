@@ -9,9 +9,9 @@ import xarray
 import gc
 
 def make_df_gaze_data(sampling_rate: int,
-              duration: int,
-              event_interval: int,
-              event_duration: int) -> pd.DataFrame:
+                      duration: int,
+                      event_interval: int,
+                      event_duration: int) -> pd.DataFrame:
     """ 
     Parameters
     sampling_rate: Hz
@@ -49,14 +49,14 @@ def make_df_gaze_data(sampling_rate: int,
     
     return df
 
-def make_df_ratios_per_epoch(num_subjects: int) -> pd.DataFrame:
+def make_df_ratios_per_epoch(num_subjects: int = 30) -> pd.DataFrame:
 
     dataframes = {}
     for i in range(num_subjects):
-        dataframes[i] = mf.make_df_gaze_data(samling_rate=30, 
-                                             duration=300, 
-                                             event_interval=30, 
-                                             event_duration=2)
+        dataframes[i] = make_df_gaze_data(sampling_rate=30, 
+                                          duration=300, 
+                                          event_interval=30, 
+                                          event_duration=2)
     
     # 30(samling rate) x 60(seconds) x 5(mins) = 9000
     # 1800 timestamps per second
