@@ -10,7 +10,10 @@ num_subjects = 30
 
 dataframes = {}
 for i in range(num_subjects):
-    dataframes[i] = mf.create_df()
+    dataframes[i] = mf.create_df(samling_rate=30, 
+                                 duration=300, 
+                                 event_interval=30, 
+                                 event_duration=2)
 
 # 30(samling rate) x 60(seconds) x 5(mins) = 9000
 # 1800 timestamps per second
