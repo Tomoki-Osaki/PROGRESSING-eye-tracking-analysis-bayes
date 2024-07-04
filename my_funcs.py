@@ -73,16 +73,16 @@ def average_chains_values(param: str, trace: pm.sample) -> np.array:
         all_chains_values = np.append(all_chains_values, trace['posterior'][param][i])
         # len(all_chains_values) == 16000
         
-    tmp_4vals = np.array([])
-    mean_of_4chains = np.array([])
+    tmp_vals = np.array([])
+    mean_of_chains = np.array([])
     for i in range(draws):
         for j in range(i+draws, chains*draws-draws, draws):
-            tmp_4vals = np.append(tmp_4vals, np.array([all_chains_values[i], all_chains_values[j]]))
-        mean_of_4chains = np.append(mean_of_4chains, np.mean(tmp_4vals))
-        # len(tmp_4vals) == 4
-        tmp_4vals = []
+            tmp_vals = np.append(tmp_vals, np.array([all_chains_values[i], all_chains_values[j]]))
+            # len(tmp_vals) == chains
+        mean_of_chains = np.append(mean_of_chains, np.mean(tmp_vals))
+        tmp_vals = []
     
-    return mean_of_4chains # len(mean_of_4chains) == draws
+    return mean_of_chains # len(mean_of_chains) == draws
 
 def from_posterior(param: str, 
                    samples: xarray.DataArray or np.array
