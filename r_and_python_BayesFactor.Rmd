@@ -9,60 +9,19 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(reticulate)
 library(BayesFactor)
+setwd("C:/Users/ootmo/OneDrive/Documents/修論_AIと信頼感/py")
+use_condaenv("C:/Users/ootmo/miniconda3/envs/pymc/python.exe")
+source_python("my_funcs.py")
 ```
 
-```{python}
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import arviz as az
-import my_funcs as mf
-```
 
-```{python}
-num_subjects = 30
-
-dataframes = {}
-for i in range(num_subjects):
-    dataframes[i] = mf.create_df()
-
-# 30(samling rate) x 60(seconds) x 5(mins) = 9000
-# 1800 timestamps per second
-# events happen every 30 seconds (900)
-
-df = dataframes[0]
-
-dataframes_hit = {}
-for x in range(num_subjects):
-    df_hit = pd.DataFrame()
-    empty = []
-    for i, hit in enumerate(dataframes[x]['AOI_Hit']):
-        if i % 900 != 0 or i == 0:
-            empty.append(hit)
-        else:
-            df_hit[f'epoch{int(i/900)}'] = empty
-            empty = [hit]
-            
-    dataframes_hit[x] = df_hit
-
-ratios_per_epoch = {}
-for i in range(num_subjects):
-    ratios = []
-    for j in range(len(dataframes_hit[i].columns)):
-        ratios.append(sum(dataframes_hit[i][f'epoch{j+1}']) / len(dataframes_hit[i][f'epoch{j+1}']))
-    ratios_per_epoch[i] = ratios
-    
-colnames = [f'epoch{i+1}' for i in range(len(dataframes_hit[i].columns))]
-ratios_per_epoch = pd.DataFrame.from_dict(ratios_per_epoch, orient='index', columns=colnames)
-ratios_per_epoch.head()
-```
 ```{r}
+ratios_per_epoch <- make_df_ratios_per_epoch()
+
 BFs <- c()
-for (i in 1:(length(py$ratios_per_epoch)-1)) {
-    epoch1 <- paste0('epoch', i)
-    epoch1 <- unlist(py$ratios_per_epoch[epoch1])
-    epoch2 <- paste0('epoch', i + 1)
-    epoch2 <- unlist(py$ratios_per_epoch[epoch2])
+for (i in 1:(length(ratios_per_epoch)-1)) {
+    epoch1 <- ratios_per_epoch[, i]
+    epoch2 <- ratios_per_epoch[, i + 1]
     res <- ttestBF(epoch1, epoch2)
     BF <- extractBF(res, onlybf = TRUE)
     BFs <- append(BFs, BF)
