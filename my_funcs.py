@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import pymc as pm
 import arviz as az
 from scipy import stats
@@ -9,26 +8,29 @@ import xarray
 import gc
 
 def make_df_gaze_data(sampling_rate: int,
-                      duration: int,
+                      recording_duration: int,
                       event_interval: int,
                       event_duration: int) -> pd.DataFrame:
-    """ 
+    """    
     sampling_rate: Hz
     duration: recording minutes in seconds
-    event_interval: interval of event happening
+    event_interval: interval of event happening in seconds
     event_duration: Event duration in seconds
+    
+    Event interval should be longer than event_duration.
+    Called in make_df_ratios_per_epoch.
     """
-    total_samples = duration * sampling_rate
+    total_samples = recording_duration * sampling_rate
     aoi = {'x_min': 300, 'x_max': 600, 'y_min': 200, 'y_max': 400}  # Example AOI coordinates
     
     # Initialize data
-    timestamps = np.linspace(0, duration, total_samples)
+    timestamps = np.linspace(0, recording_duration, total_samples)
     x_coords = np.random.randint(0, 800, total_samples)  # Random X coordinates
     y_coords = np.random.randint(0, 600, total_samples)  # Random Y coordinates
     fixation_durations = np.random.randint(100, 500, total_samples)  # Random fixation durations between 100ms and 500ms
     
     # Simulate events attracting attention to the AOI
-    for i in range(0, duration, event_interval):
+    for i in range(0, recording_duration, event_interval):
         event_start = i * sampling_rate
         event_end = event_start + event_duration * sampling_rate
         x_coords[event_start:event_end] = np.random.randint(aoi['x_min'], aoi['x_max'], event_end - event_start)
@@ -48,27 +50,32 @@ def make_df_gaze_data(sampling_rate: int,
     
     return df
 
-def make_df_ratios_per_epoch(num_subjects: int = 30) -> pd.DataFrame:
+def make_df_ratios_per_epoch(num_subjects: int = 30,
+                             sampling_rate: int = 30,
+                             recording_duration: int = 300,
+                             event_interval: int = 30,
+                             event_duration: int = 2) -> pd.DataFrame:
 
     dataframes = {}
     for i in range(num_subjects):
-        dataframes[i] = make_df_gaze_data(sampling_rate=30, 
-                                          duration=300, 
-                                          event_interval=30, 
-                                          event_duration=2)
+        dataframes[i] = make_df_gaze_data(sampling_rate, 
+                                          recording_duration, 
+                                          event_interval, 
+                                          event_duration)
     # 30(samling rate) x 60(seconds) x 5(mins) = 9000
     # 1800 timestamps per second
     # events happen every 30 seconds (900)
     
     dataframes_hit = {}
+    epoch_duration = sampling_rate * event_interval
     for x in range(num_subjects):
         df_hit = pd.DataFrame()
         empty = []
         for i, hit in enumerate(dataframes[x]['AOI_Hit']):
-            if i % 900 != 0 or i == 0:
+            if i % epoch_duration != 0 or i == 0:
                 empty.append(hit)
             else:
-                df_hit[f'epoch{int(i/900)}'] = empty
+                df_hit[f'epoch{int(i/epoch_duration)}'] = empty
                 empty = [hit]   
         dataframes_hit[x] = df_hit
     
@@ -88,11 +95,12 @@ def calculate_posterior(observed: np.array,
                         draws: int = 2000,
                         tune: int = 1000) -> az.InferenceData:
     with pm.Model() as model:
-        # Binomial distribution cannot be used because the probability of success varies
+        # Bernoulli distribution cannot be used because the each trial is not independent
+        # Thus, Binomial distribution is also not available
         mu = pm.Uniform('mu', lower=0, upper=1)
         sigma = pm.HalfNormal('sigma', sigma=0.4)
         
-        likelihood = pm.Normal('likelihood', mu=mu, sigma=sigma, observed=observed)
+        likelihood = pm.StudentT('likelihood', nu=1, mu=mu, sigma=sigma, observed=observed)
         
         trace = pm.sample(draws=draws, tune=tune, return_inferencedata=True)
         #trace.extend(pm.sample_prior_predictive(8000))
@@ -162,5 +170,4 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
         gc.collect()
     
     return df_result, traces
-
 
