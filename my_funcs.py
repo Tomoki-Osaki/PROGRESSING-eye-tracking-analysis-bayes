@@ -13,7 +13,6 @@ def make_df_gaze_data(sampling_rate: int,
                       event_interval: int,
                       event_duration: int) -> pd.DataFrame:
     """ 
-    Parameters
     sampling_rate: Hz
     duration: recording minutes in seconds
     event_interval: interval of event happening
@@ -57,7 +56,6 @@ def make_df_ratios_per_epoch(num_subjects: int = 30) -> pd.DataFrame:
                                           duration=300, 
                                           event_interval=30, 
                                           event_duration=2)
-    
     # 30(samling rate) x 60(seconds) x 5(mins) = 9000
     # 1800 timestamps per second
     # events happen every 30 seconds (900)
@@ -71,8 +69,7 @@ def make_df_ratios_per_epoch(num_subjects: int = 30) -> pd.DataFrame:
                 empty.append(hit)
             else:
                 df_hit[f'epoch{int(i/900)}'] = empty
-                empty = [hit]
-                
+                empty = [hit]   
         dataframes_hit[x] = df_hit
     
     ratios_per_epoch = {}
