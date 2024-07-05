@@ -9,19 +9,11 @@ import my_funcs as mf
 from gc import collect as gc
 az.style.use('arviz-darkgrid')
 
-ratios_per_epoch = mf.make_df_ratios_per_epoch(
-    num_subjects=30,
-    sampling_rate=30,
-    recording_duration=300,
-    event_interval=30,
-    event_duration=2
-)
-
-subjects_data = mf.make_df_subjects_data(30)
-subjects_data.head()
+df = mf.make_df_subjects_data(100)
+df.head()
 
 ### inference
-trace = mf.calculate_posterior(ratios_per_epoch['epoch1']) 
+trace = mf.calculate_posterior(df['epoch0']) 
 ### 
 
 result = az.summary(trace).loc['mu']
@@ -38,7 +30,7 @@ mean_of_4chains_sigma = mf.average_chains_values('sigma', trace) # len(mean_of_4
 df_result, traces = mf.sequential_bayes_update(
     df_to_append=df_result, 
     prior_trace=mean_of_4chains_mu,
-    observed=ratios_per_epoch,
+    observed=df,
     epochs=range(2, 10)
 ) 
 ###
