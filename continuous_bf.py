@@ -17,23 +17,8 @@ ratios_per_epoch = mf.make_df_ratios_per_epoch(
     event_duration=2
 )
 
-subjects_data = {}
-for i in range(50):
-    subject_data = {}
-    alarms = [True, True, True, False, True, True, False, True, True, False]
-    for epoch, alarm in enumerate(alarms):
-        if alarm:
-            subject_data[epoch] = np.random.beta(a=2, b=2)
-        else:
-            subject_data[epoch] = np.random.beta(a=2, b=5)
-    subjects_data[i] = subject_data
-
-df = pd.DataFrame.from_dict(subjects_data, orient='index')
-df[0].hist(bins=10)
-for i in range(len(alarms)):
-    df[i].hist(bins=10)
-    plt.show()
-    print(f'epoch{i}')
+subjects_data = mf.make_df_subjects_data(30)
+subjects_data.head()
 
 ### inference
 trace = mf.calculate_posterior(ratios_per_epoch['epoch1']) 
