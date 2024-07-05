@@ -91,6 +91,24 @@ def make_df_ratios_per_epoch(num_subjects: int = 30,
     
     return ratios_per_epoch
 
+def make_df_subjects_data(num_subjects: int) -> pd.DataFrame:
+    subjects_data = {}
+    alarms = [True, True, True, False, True, True, False, True, True, False]
+    for i in range(num_subjects):
+        subject_data = {}
+        for epoch, alarm in enumerate(alarms):
+            if alarm: # when an alarm is correct
+                subject_data[epoch] = np.random.beta(a=2, b=5)
+            else: # when an alarm is false
+                subject_data[epoch] = np.random.beta(a=2, b=2)
+        subjects_data[i] = subject_data
+        
+    subjects_data = pd.DataFrame.from_dict(subjects_data, orient='index')
+    for i in range(len(alarms)):
+        subjects_data.rename(columns={i: f'epoch{i}'}, inplace=True)
+    
+    return subjects_data
+
 def calculate_posterior(observed: np.array,
                         draws: int = 2000,
                         tune: int = 1000) -> az.InferenceData:
