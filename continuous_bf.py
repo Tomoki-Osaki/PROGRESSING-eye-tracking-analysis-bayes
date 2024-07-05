@@ -1,6 +1,4 @@
 # The main analysis
-import os
-os.chdir("C:/Users/ootmo/OneDrive/Documents/修論_AIと信頼感/py")
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,7 +7,7 @@ import my_funcs as mf
 from gc import collect as gc
 az.style.use('arviz-darkgrid')
 
-df = mf.make_df_subjects_data(100)
+df = mf.make_df_subjects_data(30)
 df.head()
 
 ### inference

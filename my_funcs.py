@@ -3,6 +3,7 @@ import numpy as np
 import pymc as pm
 import arviz as az
 from scipy import stats
+import matplotlib.pyplot as plt
 from pymc.distributions import Interpolated
 import xarray
 import gc
@@ -98,14 +99,14 @@ def make_df_subjects_data(num_subjects: int) -> pd.DataFrame:
         subject_data = {}
         for epoch, alarm in enumerate(alarms):
             if alarm: # when an alarm is correct
-                subject_data[epoch] = np.random.beta(a=2, b=5)
+                subject_data[epoch] = np.random.beta(a=4, b=10)
             else: # when an alarm is false
-                subject_data[epoch] = np.random.beta(a=2, b=2)
+                subject_data[epoch] = np.random.beta(a=5, b=5)
         subjects_data[i] = subject_data
         
     subjects_data = pd.DataFrame.from_dict(subjects_data, orient='index')
     for i in range(len(alarms)):
-        subjects_data.rename(columns={i: f'epoch{i}'}, inplace=True)
+        subjects_data.rename(columns={i: f'epoch{i}'}, inplace=True)    
     
     return subjects_data
 
@@ -189,3 +190,8 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
     
     return df_result, traces
 
+def plotbeta(a, b, size=10000, bins=50):
+    mode = (a-1) / (a + b -2)
+    print("mode ", mode)
+    data = np.random.beta(a, b, size)
+    plt.hist(data, bins=bins)
