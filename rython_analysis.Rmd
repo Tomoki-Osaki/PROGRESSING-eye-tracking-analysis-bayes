@@ -1,0 +1,22 @@
+---
+title: "rython_analysis.Rmd"
+author: "Tomoki Osaki"
+date: "2024-07-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+setwd("C:/Users/ootmo/OneDrive/Documents/修論_AIと信頼感/py")
+use_condaenv("C:/Users/ootmo/miniconda3/envs/pymc/python.exe")
+source_python("my_funcs.py")
+```
+
+#### try to implement the KL divergence
+```{r}
+subjects_data <- make_df_subjects_data(as.integer(30))
+
+```
+
+
