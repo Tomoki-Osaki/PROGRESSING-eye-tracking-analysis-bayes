@@ -94,14 +94,14 @@ def make_df_ratios_per_epoch(num_subjects: int = 30,
 
 def make_df_subjects_data(num_subjects: int) -> pd.DataFrame:
     subjects_data = {}
-    alarms = [True, True, True, False, True, True, False, True, True, False]
+    alarms = [True, True, False, True, True, True, False, True, False, True]
     for i in range(num_subjects):
         subject_data = {}
         for epoch, alarm in enumerate(alarms):
             if alarm: # when an alarm is correct
                 subject_data[epoch] = np.random.beta(a=4, b=10)
             else: # when an alarm is false
-                subject_data[epoch] = np.random.beta(a=5, b=5)
+                subject_data[epoch] = np.random.beta(a=10, b=5)
         subjects_data[i] = subject_data
         
     subjects_data = pd.DataFrame.from_dict(subjects_data, orient='index')
