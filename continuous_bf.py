@@ -1,4 +1,6 @@
 # The main analysis
+# To do: implement the KL divergence.
+# make a dataset whose one datapoint represent a average ratio of AOI hit
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
