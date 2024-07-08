@@ -3,6 +3,7 @@
 # make a dataset whose one datapoint represent a average ratio of AOI hit
 import pandas as pd
 import numpy as np
+from scipy.special import kl_div
 import matplotlib.pyplot as plt
 import arviz as az
 import my_funcs as mf
@@ -27,11 +28,11 @@ mean_of_4chains_mu = mf.average_chains_values('mu', trace) # len(mean_of_4chains
 mean_of_4chains_sigma = mf.average_chains_values('sigma', trace) # len(mean_of_4chains_mu)==2000
 
 ### inference
-df_result, traces = mf.sequential_bayes_update(
+df_result, traces, kl_divs = mf.sequential_bayes_update(
     df_to_append=df_result, 
     prior_trace=mean_of_4chains_mu,
     observed=df,
-    epochs=range(2, 10)
+    epochs=range(2, 8)
 ) 
 ###
 
