@@ -8,6 +8,8 @@ from pymc.distributions import Interpolated
 import xarray
 import gc
 
+Array = xarray.DataArray or np.array
+
 def make_df_gaze_data(sampling_rate: int,
                       recording_duration: int,
                       event_interval: int,
@@ -122,7 +124,7 @@ def calculate_posterior(observed: np.array,
         likelihood = pm.StudentT('likelihood', nu=1, mu=mu, sigma=sigma, observed=observed)
         
         trace = pm.sample(draws=draws, tune=tune, return_inferencedata=True)
-        #trace.extend(pm.sample_prior_predictive(8000))
+
     gc.collect()
     
     return trace
@@ -147,7 +149,7 @@ def average_chains_values(param: str, trace: pm.sample) -> np.array:
     return mean_of_chains # len(mean_of_chains) == draws
 
 def from_posterior(param: str, 
-                   samples: xarray.DataArray or np.array
+                   samples: Array
                    ) -> pm.distributions.Interpolated:
     smin, smax = np.min(samples), np.max(samples)
     width = smax - smin
@@ -162,13 +164,14 @@ def from_posterior(param: str,
     return Interpolated(param, x, y)
 
 def sequential_bayes_update(df_to_append: pd.DataFrame, 
-                            prior_trace: xarray.DataArray or np.array,
+                            prior_trace: Array,
                             observed: pd.DataFrame,
                             epochs: iter,
                             draws: int = 2000,
-                            tune: int = 1000) -> tuple[pd.DataFrame, dict]:
+                            tune: int = 1000) -> tuple[pd.DataFrame, dict, list]:
     df_result = df_to_append.copy()
     traces = {}
+    kl_divs = []
     for i in epochs:
         with pm.Model() as model:
             mu = from_posterior('mu', prior_trace)
@@ -183,12 +186,15 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
         df_result = df_result._append(result, ignore_index=True)
         traces[f'epoch{i}'] = trace
         
-        prior_trace = average_chains_values(param='mu', trace=trace)
-        
+        posterior_trace = average_chains_values(param='mu', trace=trace)
+        kl_div = np.sum(prior_trace, posterior_trace)
+        kl_div.append(kl_div)
+        prior_trace = posterior_trace
+
         print(f'\nepoch{i} done\n')
         gc.collect()
     
-    return df_result, traces
+    return df_result, traces, kl_divs
 
 def plotbeta(a, b, size=10000, bins=50):
     mode = (a-1) / (a + b -2)
