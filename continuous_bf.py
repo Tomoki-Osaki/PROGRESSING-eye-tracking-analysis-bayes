@@ -13,9 +13,9 @@ az.style.use('arviz-darkgrid')
 df = mf.make_df_subjects_data(30)
 df.head()
 
-### inference -------------------------------
+### inference ----------------------------------
 trace = mf.calculate_posterior(df['epoch0']) 
-### -----------------------------------------
+### --------------------------------------------
 
 result = az.summary(trace).loc['mu']
 df_result = pd.DataFrame()
