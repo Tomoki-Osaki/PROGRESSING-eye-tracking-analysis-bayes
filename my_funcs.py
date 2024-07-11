@@ -9,6 +9,17 @@ import gc
 
 Array = xarray.DataArray or np.array
 
+"""
+make_df_gaze_data
+make_df_ratios_per_epoch
+make_df_subjects_data
+calculate_posterior
+average_chains_values
+from_posterior
+sequential_bayes_update
+plotbeta
+"""
+
 def make_df_gaze_data(sampling_rate: int,
                       recording_duration: int,
                       event_interval: int,
@@ -52,6 +63,7 @@ def make_df_gaze_data(sampling_rate: int,
     
     return df
 
+
 def make_df_ratios_per_epoch(num_subjects: int = 30,
                              sampling_rate: int = 30,
                              recording_duration: int = 300,
@@ -93,6 +105,7 @@ def make_df_ratios_per_epoch(num_subjects: int = 30,
     
     return ratios_per_epoch
 
+
 def make_df_subjects_data(num_subjects: int) -> pd.DataFrame:
     subjects_data = {}
     alarms = [True, True, False, True, True, True, False, True, False, True]
@@ -111,6 +124,7 @@ def make_df_subjects_data(num_subjects: int) -> pd.DataFrame:
     
     return subjects_data
 
+
 def calculate_posterior(observed: np.array,
                         draws: int = 2000,
                         tune: int = 1000) -> az.InferenceData:
@@ -127,6 +141,7 @@ def calculate_posterior(observed: np.array,
     gc.collect()
     
     return trace
+
 
 def average_chains_values(param: str, trace: pm.sample) -> np.array:
     chains = len(trace['posterior']['chain'])
@@ -147,6 +162,7 @@ def average_chains_values(param: str, trace: pm.sample) -> np.array:
     
     return mean_of_chains # len(mean_of_chains) == draws
 
+
 def from_posterior(param: str, 
                    samples: Array) -> pm.distributions.Interpolated:
     smin, smax = np.min(samples), np.max(samples)
@@ -160,6 +176,7 @@ def from_posterior(param: str,
     y = np.concatenate([[0], y, [0]])
 
     return pm.distributions.Interpolated(param, x, y)
+
 
 def sequential_bayes_update(df_to_append: pd.DataFrame, 
                             prior_trace: Array,
@@ -193,6 +210,7 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
         gc.collect()
     
     return df_result, traces, kl_divs
+
 
 def plotbeta(a, b, size=10000, bins=50):
     mode = (a-1) / (a + b -2)
