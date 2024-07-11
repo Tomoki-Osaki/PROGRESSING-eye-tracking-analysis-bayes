@@ -28,11 +28,11 @@ mean_of_4chains_mu = mf.average_chains_values('mu', trace) # len(mean_of_4chains
 mean_of_4chains_sigma = mf.average_chains_values('sigma', trace) # len(mean_of_4chains_mu)==2000
 
 ### inference
-df_result, traces, kl_divs = mf.sequential_bayes_update(
+df_result, traces, kl = mf.sequential_bayes_update(
     df_to_append=df_result, 
     prior_trace=mean_of_4chains_mu,
     observed=df,
-    epochs=range(2, 8)
+    epochs=range(2, 4)
 ) 
 ###
 
