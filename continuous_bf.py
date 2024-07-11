@@ -13,9 +13,9 @@ az.style.use('arviz-darkgrid')
 df = mf.make_df_subjects_data(30)
 df.head()
 
-### inference
+### inference -------------------------------
 trace = mf.calculate_posterior(df['epoch0']) 
-### 
+### -----------------------------------------
 
 result = az.summary(trace).loc['mu']
 df_result = pd.DataFrame()
@@ -27,14 +27,14 @@ plt.show()
 mean_of_4chains_mu = mf.average_chains_values('mu', trace) # len(mean_of_4chains_mu)==2000
 mean_of_4chains_sigma = mf.average_chains_values('sigma', trace) # len(mean_of_4chains_mu)==2000
 
-### inference
+### inference ---------------------------------------
 df_result, traces, kl = mf.sequential_bayes_update(
     df_to_append=df_result, 
     prior_trace=mean_of_4chains_mu,
     observed=df,
-    epochs=range(2, 4)
+    epochs=range(2, 10)
 ) 
-###
+### -------------------------------------------------
 
 fig, ax = plt.subplots()
 ax.plot(df_result.index, df_result['mean'])
