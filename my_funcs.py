@@ -2,9 +2,8 @@ import pandas as pd
 import numpy as np
 import pymc as pm
 import arviz as az
-from scipy import stats
+import scipy as sc
 import matplotlib.pyplot as plt
-from pymc.distributions import Interpolated
 import xarray
 import gc
 
@@ -121,7 +120,7 @@ def calculate_posterior(observed: np.array,
         mu = pm.Uniform('mu', lower=0, upper=1)
         sigma = pm.HalfNormal('sigma', sigma=0.4)
         
-        likelihood = pm.StudentT('likelihood', nu=1, mu=mu, sigma=sigma, observed=observed)
+        likelihood = pm.Normal('likelihood', mu=mu, sigma=sigma, observed=observed)
         
         trace = pm.sample(draws=draws, tune=tune, return_inferencedata=True)
 
@@ -149,19 +148,18 @@ def average_chains_values(param: str, trace: pm.sample) -> np.array:
     return mean_of_chains # len(mean_of_chains) == draws
 
 def from_posterior(param: str, 
-                   samples: Array
-                   ) -> pm.distributions.Interpolated:
+                   samples: Array) -> pm.distributions.Interpolated:
     smin, smax = np.min(samples), np.max(samples)
     width = smax - smin
     x = np.linspace(smin, smax, 100)
-    y = stats.gaussian_kde(samples)(x)
+    y = sc.stats.gaussian_kde(samples)(x)
 
     # what was never sampled should have a small probability but not 0,
     # so we'll extend the domain and use linear approximation of density on it
     x = np.concatenate([[x[0] - 3 * width], x, [x[-1] + 3 * width]])
     y = np.concatenate([[0], y, [0]])
-    
-    return Interpolated(param, x, y)
+
+    return pm.distributions.Interpolated(param, x, y)
 
 def sequential_bayes_update(df_to_append: pd.DataFrame, 
                             prior_trace: Array,
@@ -187,8 +185,8 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
         traces[f'epoch{i}'] = trace
         
         posterior_trace = average_chains_values(param='mu', trace=trace)
-        kl_div = np.sum(prior_trace, posterior_trace)
-        kl_div.append(kl_div)
+        kl_div = sc.special.kl_div(prior_trace, posterior_trace)
+        kl_divs.append(kl_div)
         prior_trace = posterior_trace
 
         print(f'\nepoch{i} done\n')
