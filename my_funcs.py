@@ -8,6 +8,7 @@ import xarray
 import gc
 
 Array = xarray.DataArray or np.array
+Path = str
 
 """
 make_df_gaze_data
@@ -183,7 +184,8 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
                             observed: pd.DataFrame,
                             epochs: iter,
                             draws: int = 2000,
-                            tune: int = 1000) -> tuple[pd.DataFrame, dict, list]:
+                            tune: int = 1000,
+                            save_csv: Path = None) -> tuple[pd.DataFrame, dict, list]:
     df_result = df_to_append.copy()
     traces = {}
     kl_divs = []
@@ -208,6 +210,9 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
 
         print(f'\nepoch{i} done\n')
         gc.collect()
+        
+        if save_csv != None:
+            df_result.csv(save_csv)
     
     return df_result, traces, kl_divs
 
