@@ -222,3 +222,5 @@ def plotbeta(a, b, size=10000, bins=50):
     print("mode ", mode)
     data = np.random.beta(a, b, size)
     plt.hist(data, bins=bins)
+    plt.show()
+    
