@@ -35,7 +35,8 @@ for i in range(600):
         data_arr = np.append(data_arr, data)
             
     repeat += 1
-    
+plt.plot(data_arr)
+plt.show()    
 
 
 def make_df_subjects_data(num_subjects: int,
