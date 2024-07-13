@@ -113,6 +113,7 @@ def make_df_subjects_data(num_subjects: int,
                           random_seed: int = 1) -> pd.DataFrame:
     np.random.seed(random_seed)
     subjects_data = {}
+    # assuming alarmed every 30 seconds
     alarms = [True, True, False, True, True, True, False, True, False, True]
     for i in range(num_subjects):
         subject_data = {}
@@ -224,7 +225,7 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
 
 
 def plotbeta(a, b, size=10000, bins=50):
-    mode = (a-1) / (a + b -2)
+    mode = (a - 1) / (a + b -2)
     print("mode ", mode)
     data = np.random.beta(a, b, size)
     plt.hist(data, bins=bins)
