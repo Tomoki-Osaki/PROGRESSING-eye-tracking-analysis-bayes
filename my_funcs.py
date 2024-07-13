@@ -24,7 +24,8 @@ plotbeta
 def make_df_gaze_data(sampling_rate: int,
                       recording_duration: int,
                       event_interval: int,
-                      event_duration: int) -> pd.DataFrame:
+                      event_duration: int,
+                      random_seed: int = 1) -> pd.DataFrame:
     """    
     sampling_rate: Hz
     duration: recording minutes in seconds
@@ -38,6 +39,7 @@ def make_df_gaze_data(sampling_rate: int,
     aoi = {'x_min': 300, 'x_max': 600, 'y_min': 200, 'y_max': 400}  # Example AOI coordinates
     
     # Initialize data
+    np.random.seed(random_seed)
     timestamps = np.linspace(0, recording_duration, total_samples)
     x_coords = np.random.randint(0, 800, total_samples)  # Random X coordinates
     y_coords = np.random.randint(0, 600, total_samples)  # Random Y coordinates
@@ -107,7 +109,9 @@ def make_df_ratios_per_epoch(num_subjects: int = 30,
     return ratios_per_epoch
 
 
-def make_df_subjects_data(num_subjects: int) -> pd.DataFrame:
+def make_df_subjects_data(num_subjects: int,
+                          random_seed: int = 1) -> pd.DataFrame:
+    np.random.seed(random_seed)
     subjects_data = {}
     alarms = [True, True, False, True, True, True, False, True, False, True]
     for i in range(num_subjects):
@@ -128,7 +132,8 @@ def make_df_subjects_data(num_subjects: int) -> pd.DataFrame:
 
 def calculate_posterior(observed: np.array,
                         draws: int = 2000,
-                        tune: int = 1000) -> az.InferenceData:
+                        tune: int = 1000,
+                        random_seed: int = 1) -> az.InferenceData:
     with pm.Model() as model:
         # Bernoulli distribution cannot be used because the each trial is not independent
         # Thus, Binomial distribution is also not available
@@ -137,7 +142,7 @@ def calculate_posterior(observed: np.array,
         
         likelihood = pm.Normal('likelihood', mu=mu, sigma=sigma, observed=observed)
         
-        trace = pm.sample(draws=draws, tune=tune, return_inferencedata=True)
+        trace = pm.sample(draws=draws, tune=tune, return_inferencedata=True, random_seed=random_seed)
 
     gc.collect()
     
@@ -185,7 +190,8 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
                             epochs: iter,
                             draws: int = 2000,
                             tune: int = 1000,
-                            save_csv: Path = None) -> tuple[pd.DataFrame, dict, list]:
+                            save_csv: Path = None,
+                            random_seed: int = 1) -> tuple[pd.DataFrame, dict, list]:
     df_result = df_to_append.copy()
     traces = {}
     kl_divs = []
@@ -197,7 +203,7 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
             
             likelihood = pm.Normal('likelihood', mu=mu, sigma=sigma, observed=observed[f'epoch{i}'])
             
-            trace = pm.sample(draws=draws, tune=tune, return_inferencedata=True)
+            trace = pm.sample(draws=draws, tune=tune, return_inferencedata=True, random_seed=random_seed)
         
         result = az.summary(trace).loc['mu']
         df_result = df_result._append(result, ignore_index=True)
@@ -212,7 +218,7 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
         gc.collect()
         
         if save_csv != None:
-            df_result.csv(save_csv)
+            df_result.to_csv(f'rs{random_seed}_{save_csv}')
     
     return df_result, traces, kl_divs
 

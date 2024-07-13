@@ -31,7 +31,8 @@ df_result, traces, kl = mf.sequential_bayes_update(
     df_to_append=df_result, 
     prior_trace=mean_of_4chains_mu,
     observed=df,
-    epochs=range(2, 3)
+    epochs=range(2, 3),
+    save_csv='res_inferecen.csv'
 ) 
 ### -------------------------------------------------
 
