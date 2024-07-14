@@ -11,6 +11,7 @@ Functions
 6. from_posterior
 7. sequential_bayes_update
 8. plotbeta
+9. plotInvGamma
 """
 import pandas as pd
 import numpy as np
@@ -18,6 +19,7 @@ import pymc as pm
 import arviz as az
 import scipy as sc
 import matplotlib.pyplot as plt
+import seaborn as sns
 import xarray
 import gc
 
@@ -227,10 +229,26 @@ def sequential_bayes_update(df_to_append: pd.DataFrame,
     return df_result, traces, kl_divs
 
 
-def plotbeta(a, b, size=10000, bins=50):
-    mode = (a - 1) / (a + b -2)
+def plotbeta(alpha, beta, size=10000, bins=50):
+    sns.set(rc={"figure.figsize":(12, 8)}, font_scale=2)
+    mode = (alpha - 1) / (alpha + beta -2)
     print("mode ", mode)
-    data = np.random.beta(a, b, size)
+    data = np.random.beta(alpha, beta, size)
     plt.hist(data, bins=bins)
+    plt.show()
+    
+    
+def plotInvGamma(alpha=2, beta=2):
+    sns.set(rc={"figure.figsize":(12, 8)}, font_scale=2)
+    x = np.linspace(0.01, 10, 1000)
+    mean = beta / (alpha - 1)
+    print("mean:", mean)
+    pdf = sc.stats.invgamma.pdf(x, a=alpha, scale=beta)
+    plt.plot(x, pdf, 'b-', label=f'Inverse-Gamma(alpha={alpha}, beta={beta})')
+    plt.title('Inverse-Gamma Distribution')
+    plt.xlabel('x')
+    plt.ylabel('Probability Density')
+    plt.legend()
+    plt.grid(True)
     plt.show()
     
