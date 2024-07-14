@@ -41,9 +41,10 @@ with pm.Model() as model:
     mu = pm.Normal('mu', mu=0.5, sigma=1)
     #mu = pm.Uniform('mu', lower=0, upper=1)
     #sigma = pm.Uniform('sigma', lower=0, upper=3)
-    sigma = pm.InverseGamma('sigma', alpha=2, beta=2)
+    variance = pm.InverseGamma('variance', alpha=2, beta=2)
     
-    likelihood = pm.Normal('likelihood', mu=mu, sigma=sigma, observed=data_arr[:30])
+    likelihood = pm.Normal('likelihood', mu=mu, sigma=pm.math.sqrt(variance), 
+                           observed=data_arr[:30])
     
     trace = pm.sample(2000)
 
