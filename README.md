@@ -16,4 +16,4 @@ However, previous research in the context of automation systems have just calcul
 
 Therefore, to make a mental model can be thought to help us understand the changes of users' trust on the automation system and also might enable us to predict how they would react to the system in the future.
 
-Now, before running actual psychological experiment in the laboratory, generating the dummy data and simulating whether the Bayesian modeling method could work well to make such model.
+Now, before running the actual psychological experiment in the laboratory, generating the dummy data and simulating whether the Bayesian modeling method could work well to make a such model.
