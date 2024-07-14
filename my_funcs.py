@@ -1,3 +1,17 @@
+"""
+Python: 3.11.6
+PyMC: 5.9.1
+
+Functions
+1. make_df_gaze_data
+2. make_df_ratios_per_epoch
+3. make_df_subjects_data
+4. calculate_posterior
+5. average_chains_values
+6. from_posterior
+7. sequential_bayes_update
+8. plotbeta
+"""
 import pandas as pd
 import numpy as np
 import pymc as pm
@@ -9,17 +23,6 @@ import gc
 
 Array = xarray.DataArray or np.array
 Path = str
-
-"""
-make_df_gaze_data
-make_df_ratios_per_epoch
-make_df_subjects_data
-calculate_posterior
-average_chains_values
-from_posterior
-sequential_bayes_update
-plotbeta
-"""
 
 def make_df_gaze_data(sampling_rate: int,
                       recording_duration: int,
